@@ -44,8 +44,8 @@ type Nimble struct {
 // Run is a convenience function that runs the nimble stack as an HTTP
 // server. The addr string takes the same format as http.ListenAndServe.
 func (n *Nimble) Run(addr string) {
-	l := log.New(os.Stdout, "[nim.] ", 0)
-	l.Printf("Listening on %s", addr)
+	l := log.New(os.Stdout, "[n.] ", 0)
+	l.Printf("Server listening on %s", addr)
 	l.Fatal(http.ListenAndServe(addr, n))
 }
 
