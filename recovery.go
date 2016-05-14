@@ -29,16 +29,14 @@ func NewRecovery() *Recovery {
 func (rec *Recovery) ServeHTTP(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 	defer func() {
 		if err := recover(); err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
 			stack := make([]byte, rec.StackSize)
 			stack = stack[:runtime.Stack(stack, rec.StackAll)]
-
 			f := "RECOVER: %s\n%s"
 			rec.Logger.Printf(f, err, stack)
 			if rec.PrintStack {
 				fmt.Fprintf(w, f, err, stack)
 			}
-
-			w.WriteHeader(http.StatusInternalServerError)
 		}
 	}()
 
