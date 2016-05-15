@@ -24,7 +24,7 @@ func main() {
 		Use(subrouter),
 	)
 
-	n := nimble.Default()
+	n := nimble.DefaultWithContext(context.TODO())
 	n.UseFunc(myMiddleware)
 	n.Use(router)
 	n.Run(":3000")
@@ -38,6 +38,9 @@ func myMiddleware(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("A middleware that always runs per http request.\n\n"))
 
 	c := nimble.GetContext(r)
+	info := "ip = " + c.Value("ip").(string) + " port = " + c.Value("port").(string) + "\n\n"
+	w.Write([]byte(info))
+
 	c = context.WithValue(c, "key", "the Avengers")
 	nimble.SetContext(r, c)
 }
