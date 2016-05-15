@@ -23,14 +23,14 @@ func Default() *Nimble {
 	return New().
 		UseHandler(NewRecovery()).
 		UseHandler(NewLogger()).
-		UseHandler(NewStatic(http.Dir("public")))
+		UseHandler(NewStatic(http.Dir("static")))
 }
 
 func DefaultWithContext(c context.Context) *Nimble {
 	return New().
 	UseHandler(NewRecovery()).
 	UseHandler(NewLogger()).
-	UseHandler(NewStatic(http.Dir("public"))).
+	UseHandler(NewStatic(http.Dir("static"))).
 	UseHandler(NewContext(c))
 }
 

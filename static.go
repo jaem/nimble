@@ -6,44 +6,44 @@ import (
 	"strings"
 )
 
-// Static is a middleware to serves static files in the given directory/filesystem.
-type Static struct {
-	// Dir is the directory to serve static files from
-	Dir http.FileSystem
-	// Prefix is the optional prefix used to serve the static directory content
-	Prefix string
-	// IndexFile defines which file to serve as index if it exists.
-	IndexFile string
-}
-
 // NewStatic returns a new instance of Static
-func NewStatic(directory http.FileSystem) *Static {
-	return &Static{
-		Dir:       directory,
-		Prefix:    "",
-		IndexFile: "index.html",
+func NewStatic(directory http.FileSystem) *static {
+	return &static{
+		dir:       directory,
+		prefix:    "",
+		indexFile: "index.html",
 	}
 }
 
-func (s *Static) ServeHTTP(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+// Static is a middleware to serves static files in the given directory/filesystem.
+type static struct {
+	// Dir is the directory to serve static files from
+	dir       http.FileSystem
+	// Prefix is the optional prefix used to serve the static directory content
+	prefix    string
+	// IndexFile defines which file to serve as index if it exists.
+	indexFile string
+}
+
+func (s *static) ServeHTTP(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 	if r.Method != "GET" && r.Method != "HEAD" {
 		next(rw, r)
 		return
 	}
 	file := r.URL.Path
 	// if we have a prefix, filter requests by stripping the prefix
-	if s.Prefix != "" {
-		if !strings.HasPrefix(file, s.Prefix) {
+	if s.prefix != "" {
+		if !strings.HasPrefix(file, s.prefix) {
 			next(rw, r)
 			return
 		}
-		file = file[len(s.Prefix):]
+		file = file[len(s.prefix):]
 		if file != "" && file[0] != '/' {
 			next(rw, r)
 			return
 		}
 	}
-	f, err := s.Dir.Open(file)
+	f, err := s.dir.Open(file)
 	if err != nil {
 		// Handle multiple requests from modern browsers if missing the favicon.ico
 		if file != "/favicon.ico" {
@@ -69,8 +69,8 @@ func (s *Static) ServeHTTP(rw http.ResponseWriter, r *http.Request, next http.Ha
 			return
 		}
 
-		file = path.Join(file, s.IndexFile)
-		f, err = s.Dir.Open(file)
+		file = path.Join(file, s.indexFile)
+		f, err = s.dir.Open(file)
 		if err != nil {
 			next(rw, r)
 			return

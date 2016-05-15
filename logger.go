@@ -7,17 +7,17 @@ import (
 	"net/http"
 )
 
+// NewLogger returns a new Logger instance
+func NewLogger() *logger {
+	return &logger{log.New(os.Stdout, "[n.] ", 0)}
+}
+
 // Logger is a middleware that logs per request.
-type Logger struct {
+type logger struct {
 	*log.Logger
 }
 
-// NewLogger returns a new Logger instance
-func NewLogger() *Logger {
-	return &Logger{log.New(os.Stdout, "[n.] ", 0)}
-}
-
-func (l *Logger) ServeHTTP(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+func (l *logger) ServeHTTP(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 	start := time.Now()
 	l.Printf(CLR_G + "Request started %s %s" + CLR_N, r.Method, r.URL.Path)
 

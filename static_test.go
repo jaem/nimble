@@ -84,7 +84,7 @@ func TestStaticOptionsServeIndex(t *testing.T) {
 
 	n := New()
 	s := NewStatic(http.Dir("."))
-	s.IndexFile = "nimble.go"
+	s.indexFile = "nimble.go"
 	n.UseHandler(s)
 
 	req, err := http.NewRequest("GET", "http://localhost:3001/", nil)
@@ -101,7 +101,7 @@ func TestStaticOptionsPrefix(t *testing.T) {
 
 	n := New()
 	s := NewStatic(http.Dir("."))
-	s.Prefix = "/public"
+	s.prefix = "/public"
 	n.UseHandler(s)
 
 	// Check file content behaviour
