@@ -3,8 +3,8 @@ package nimble
 import (
 	"net/http"
 
-	"golang.org/x/net/context"
-	gorilla "github.com/gorilla/context"
+	nctx "golang.org/x/net/context"
+	gctx "github.com/gorilla/context"
 )
 
 type key int
@@ -18,32 +18,32 @@ const contextkey key = 0
 //
 // Nevertheless, this is a short-term implementation. Until 
 // net/context arrives in http.Request.
-func GetContext(r *http.Request) context.Context {
-	if c, ok := gorilla.GetOk(r, contextkey); ok {
-		return c.(context.Context)
+func GetContext(r *http.Request) nctx.Context {
+	if c, ok := gctx.GetOk(r, contextkey); ok {
+		return c.(nctx.Context)
 	}
-	return context.TODO()
+	return nctx.TODO()
 }
 
-func SetContext(r *http.Request, c context.Context) {
-	gorilla.Set(r, contextkey, c)
+func SetContext(r *http.Request, c nctx.Context) {
+	gctx.Set(r, contextkey, c)
 }
 
-// ncontext is a middleware that provisions the context per request.
-// ncontext is not a context wrapper. It is a job that performs the 
+// context is a middleware that provisions the context per request.
+// context is not a context wrapper. It is a job that performs the
 // task of context provisioning, generally at the start of the request. 
-type ncontext struct {
-	baseContext context.Context
+type context struct {
+	baseContext nctx.Context
 }
 
 // NewContext returns a new context handler
-func NewContext(c context.Context) *ncontext {
-	return &ncontext{ baseContext: c }
+func NewContext(c nctx.Context) *context {
+	return &context{ baseContext: c }
 }
 
 // Performs the context provisioning as a middleware. Why middleware? 
 // This allows for flexibility in usage. see nimble.DefaultWithContext()
-func (c *ncontext) ServeHTTP(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
-	gorilla.Set(r, contextkey, c.baseContext)
+func (c *context) ServeHTTP(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+	gctx.Set(r, contextkey, c.baseContext)
 	next(w, r)
 }

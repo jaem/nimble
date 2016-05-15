@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 	"net/http"
-	"golang.org/x/net/context"
+	nctx "golang.org/x/net/context"
 )
 
 // New returns a new Nimble instance with no middleware preconfigured.
@@ -26,7 +26,7 @@ func Default() *Nimble {
 		UseHandler(NewStatic(http.Dir("static")))
 }
 
-func DefaultWithContext(c context.Context) *Nimble {
+func DefaultWithContext(c nctx.Context) *Nimble {
 	return New().
 	UseHandler(NewRecovery()).
 	UseHandler(NewLogger()).
