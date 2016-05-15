@@ -14,7 +14,7 @@ func TestRecovery(t *testing.T) {
 	recorder := httptest.NewRecorder()
 
 	rec := NewRecovery()
-	rec.logger = log.New(buff, "[nim.] ", 0)
+	rec.logger = log.New(buff, "[n.] ", 0)
 
 	n := New()
 	// replace log for testing

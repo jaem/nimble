@@ -9,12 +9,12 @@ import (
 	"net/http/httptest"
 )
 
-func Test_Logger(t *testing.T) {
+func TestLogger(t *testing.T) {
 	buff := bytes.NewBufferString("")
 	recorder := httptest.NewRecorder()
 
 	l := NewLogger()
-	l.Logger = log.New(buff, "[nim.] ", 0)
+	l.Logger = log.New(buff, "[n.] ", 0)
 
 	n := New()
 	// replace log for testing
