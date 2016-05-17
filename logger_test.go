@@ -1,4 +1,4 @@
-package nimble
+package nim
 
 import (
 	"bytes"

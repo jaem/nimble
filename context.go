@@ -1,4 +1,4 @@
-package nimble
+package nim
 
 import (
 	"net/http"
@@ -62,6 +62,8 @@ func getIPaddress(w http.ResponseWriter, r *http.Request) (string, string) {
 	// This will only be defined when site is accessed via non-anonymous proxy
 	// and takes precedence over RemoteAddr
 	// Header.Get is case-insensitive
+	// Note the first ip should be the client IP
+	// http://docs.aws.amazon.com/ElasticLoadBalancing/latest/DeveloperGuide/x-forwarded-headers.html#x-forwarded-for
 	if ipProxy := r.Header.Get("x-forwarded-for"); len(ipProxy) > 0 {
 		return ipProxy, ""
 	}
@@ -78,3 +80,29 @@ func getIPaddress(w http.ResponseWriter, r *http.Request) (string, string) {
 
 	return "", ""
 }
+
+
+
+// Reference: GIN
+// ClientIP implements a best effort algorithm to return the real client IP, it parses
+// X-Real-IP and X-Forwarded-For in order to work properly with reverse-proxies such us: nginx or haproxy.
+//func (c *Context) ClientIP() string {
+//	if c.engine.ForwardedByClientIP {
+//		clientIP := strings.TrimSpace(c.requestHeader("X-Real-Ip"))
+//		if len(clientIP) > 0 {
+//			return clientIP
+//		}
+//		clientIP = c.requestHeader("X-Forwarded-For")
+//		if index := strings.IndexByte(clientIP, ','); index >= 0 {
+//			clientIP = clientIP[0:index]
+//		}
+//		clientIP = strings.TrimSpace(clientIP)
+//		if len(clientIP) > 0 {
+//			return clientIP
+//		}
+//	}
+//	if ip, _, err := net.SplitHostPort(strings.TrimSpace(c.Request.RemoteAddr)); err == nil {
+//		return ip
+//	}
+//	return ""
+//}
