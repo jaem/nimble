@@ -1,4 +1,4 @@
-package nim
+package nimble
 
 import (
 	"log"

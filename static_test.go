@@ -1,4 +1,4 @@
-package nim
+package nimble
 
 import (
 	"bytes"
@@ -16,7 +16,7 @@ func TestStatic(t *testing.T) {
 	n := New()
 	n.UseHandler(NewStatic(http.Dir(".")))
 
-	req, err := http.NewRequest("GET", "http://localhost:3001/nim.go", nil)
+	req, err := http.NewRequest("GET", "http://localhost:3001/nimble.go", nil)
 	if err != nil {
 		t.Error(err)
 	}
@@ -36,7 +36,7 @@ func TestStaticHead(t *testing.T) {
 	n.UseHandler(NewStatic(http.Dir(".")))
 	n.Use(http.NotFoundHandler())
 
-	req, err := http.NewRequest("HEAD", "http://localhost:3001/nim.go", nil)
+	req, err := http.NewRequest("HEAD", "http://localhost:3001/nimble.go", nil)
 	if err != nil {
 		t.Error(err)
 	}
@@ -55,7 +55,7 @@ func TestStaticAsPost(t *testing.T) {
 	n.UseHandler(NewStatic(http.Dir(".")))
 	n.Use(http.NotFoundHandler())
 
-	req, err := http.NewRequest("POST", "http://localhost:3001/nim.go", nil)
+	req, err := http.NewRequest("POST", "http://localhost:3001/nimble.go", nil)
 	if err != nil {
 		t.Error(err)
 	}
@@ -70,7 +70,7 @@ func TestStaticBadDir(t *testing.T) {
 	n := Default()
 	n.Use(http.NotFoundHandler())
 
-	req, err := http.NewRequest("GET", "http://localhost:3001/nim.go", nil)
+	req, err := http.NewRequest("GET", "http://localhost:3001/nimble.go", nil)
 	if err != nil {
 		t.Error(err)
 	}
@@ -84,7 +84,7 @@ func TestStaticOptionsServeIndex(t *testing.T) {
 
 	n := New()
 	s := NewStatic(http.Dir("."))
-	s.indexFile = "nim.go"
+	s.indexFile = "nimble.go"
 	n.UseHandler(s)
 
 	req, err := http.NewRequest("GET", "http://localhost:3001/", nil)
@@ -105,7 +105,7 @@ func TestStaticOptionsPrefix(t *testing.T) {
 	n.UseHandler(s)
 
 	// Check file content behaviour
-	req, err := http.NewRequest("GET", "http://localhost:3001/public/nim.go", nil)
+	req, err := http.NewRequest("GET", "http://localhost:3001/public/nimble.go", nil)
 	if err != nil {
 		t.Error(err)
 	}

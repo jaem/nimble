@@ -1,36 +1,24 @@
-# System caches 
+# System caches
 Thumbs.db # Windows thumbnail db
 .DS_Store # OSX files
 
-# Android Studio / Intellij project files
+# Intellij project files
 *.iml
 *.ipr
 *.iws
 .idea/
 
-# Eclipse project files
-.classpath
-.project
-.metadata/
-local.properties 
-
-# built application files
-*.apk
-*.ap_
-*.dex
-
-# Generated files
-*.class
-bin/
-gen/
-
-# Gradle wrappers / generated
-.gradle/
-gradle/
-gradlew
-gradlew.bat
-build/
-captures/
-
-# Go
+# Binaries for programs and plugins
 *.exe
+*.dll
+*.so
+*.dylib
+
+# Test binary, build with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Project-local glide cache, RE: https://github.com/Masterminds/glide/issues/736
+.glide/

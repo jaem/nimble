@@ -1,6 +1,6 @@
-# Nim (aka Nimble) [![GoDoc](https://godoc.org/github.com/nimgo/nim?status.svg)](http://godoc.org/github.com/nimgo/nim) [![Build Status](https://travis-ci.org/nimgo/nim.svg?branch=master)](https://travis-ci.org/nimgo/nim)
+# Nimble [![GoDoc](https://godoc.org/github.com/nimgo/nim?status.svg)](http://godoc.org/github.com/nimgo/nim) [![Build Status](https://travis-ci.org/nimgo/nim.svg?branch=master)](https://travis-ci.org/nimgo/nim)
 
-Nim is a lightweight middleware stack engine that encourages dev authors to use `net/http` Handlers.
+Nimble is a lightweight middleware stack engine that encourages dev authors to use `net/http` Handlers.
 
 It uses a chaining approach to web middleware in Go. It is inspired by Negroni and is similar
 to how Express (nodejs) handles its middleware.

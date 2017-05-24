@@ -1,4 +1,4 @@
-package nim
+package nimble
 
 import (
 	"net/http"
@@ -56,16 +56,16 @@ func TestNimbleServeHTTP(t *testing.T) {
 func TestHandlers(t *testing.T) {
 	response := httptest.NewRecorder()
 	n := New()
-	handles := n.handles
+	handles := n.handlers
 	expect(t, 0, len(handles))
 
 	n.UseHandlerFunc(func(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 		w.WriteHeader(http.StatusOK)
 	})
 
-	// Expects the length of handlers to be exactly 1 
+	// Expects the length of handlers to be exactly 1
 	// after adding exactly one handler to the middleware chain
-	handles = n.handles
+	handles = n.handlers
 	expect(t, 1, len(handles))
 
 	// Ensures that the first handler that is in sequence behaves
