@@ -19,11 +19,24 @@ type writer struct {
 	beforeFuncs []beforeFunc
 }
 
+type writerCloseNotifer struct {
+	*writer
+}
+
 type beforeFunc func(interfaces.Writer)
 
-// NewResponseWriter creates a ResponseWriter that wraps an http.ResponseWriter
+// newWriter creates a Writer that wraps an http.ResponseWriter
 func newWriter(w http.ResponseWriter) interfaces.Writer {
-	return &writer{w, 0, 0, nil}
+	nw := &writer{
+		ResponseWriter: w,
+	}
+
+	// provide closenotifier calls only if the writer implements it
+	if _, ok := w.(http.CloseNotifier); ok {
+		return &writerCloseNotifer{nw}
+	}
+
+	return nw
 }
 
 func (w *writer) WriteHeader(s int) {
@@ -66,10 +79,6 @@ func (w *writer) Hijack() (net.Conn, *bufio.ReadWriter, error) {
 	return hijacker.Hijack()
 }
 
-func (w *writer) CloseNotify() <-chan bool {
-	return w.ResponseWriter.(http.CloseNotifier).CloseNotify()
-}
-
 func (w *writer) callBefore() {
 	for i := len(w.beforeFuncs) - 1; i >= 0; i-- {
 		w.beforeFuncs[i](w)
@@ -81,4 +90,9 @@ func (w *writer) Flush() {
 	if ok {
 		flusher.Flush()
 	}
+}
+
+// CloseNotify provides notifications when the HTTP connection terminates
+func (wc *writerCloseNotifer) CloseNotify() <-chan bool {
+	return wc.ResponseWriter.(http.CloseNotifier).CloseNotify()
 }
