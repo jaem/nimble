@@ -4,111 +4,113 @@ import (
 	"bytes"
 	"net/http"
 
+	"github.com/nimgo/nimble"
+
 	"net/http/httptest"
 	"testing"
 )
 
 func TestStatic(t *testing.T) {
-	response := httptest.NewRecorder()
-	response.Body = new(bytes.Buffer)
+	rec := httptest.NewRecorder()
+	rec.Body = new(bytes.Buffer)
 
-	n := New()
-	n.UseHandler(NewStatic(http.Dir(".")))
+	n := nimble.New()
+	n.WithHandler(NewStatic(http.Dir(".")))
 
-	req, err := http.NewRequest("GET", "http://localhost:3001/nimble.go", nil)
+	req, err := http.NewRequest("GET", "http://localhost:3000/static_test.go", nil)
 	if err != nil {
 		t.Error(err)
 	}
-	n.ServeHTTP(response, req)
-	expect(t, response.Code, http.StatusOK)
-	expect(t, response.Header().Get("Expires"), "")
-	if response.Body.Len() == 0 {
+	n.ServeHTTP(rec, req)
+	expect(t, rec.Code, http.StatusOK)
+	expect(t, rec.Header().Get("Expires"), "")
+	if rec.Body.Len() == 0 {
 		t.Errorf("Got empty body for GET request")
 	}
 }
 
 func TestStaticHead(t *testing.T) {
-	response := httptest.NewRecorder()
-	response.Body = new(bytes.Buffer)
+	rec := httptest.NewRecorder()
+	rec.Body = new(bytes.Buffer)
 
-	n := New()
-	n.UseHandler(NewStatic(http.Dir(".")))
-	n.Use(http.NotFoundHandler())
+	n := nimble.New()
+	n.WithHandler(NewStatic(http.Dir(".")))
+	n.With(http.NotFoundHandler())
 
-	req, err := http.NewRequest("HEAD", "http://localhost:3001/nimble.go", nil)
+	req, err := http.NewRequest("HEAD", "http://localhost:3000/static_test.go", nil)
 	if err != nil {
 		t.Error(err)
 	}
 
-	n.ServeHTTP(response, req)
-	expect(t, response.Code, http.StatusOK)
-	if response.Body.Len() != 0 {
+	n.ServeHTTP(rec, req)
+	expect(t, rec.Code, http.StatusOK)
+	if rec.Body.Len() != 0 {
 		t.Errorf("Got non-empty body for HEAD request")
 	}
 }
 
 func TestStaticAsPost(t *testing.T) {
-	response := httptest.NewRecorder()
+	rec := httptest.NewRecorder()
 
-	n := New()
-	n.UseHandler(NewStatic(http.Dir(".")))
-	n.Use(http.NotFoundHandler())
+	n := nimble.New()
+	n.WithHandler(NewStatic(http.Dir(".")))
+	n.With(http.NotFoundHandler())
 
-	req, err := http.NewRequest("POST", "http://localhost:3001/nimble.go", nil)
+	req, err := http.NewRequest("POST", "http://localhost:3000/static_test.go", nil)
 	if err != nil {
 		t.Error(err)
 	}
 
-	n.ServeHTTP(response, req)
-	expect(t, response.Code, http.StatusNotFound)
+	n.ServeHTTP(rec, req)
+	expect(t, rec.Code, http.StatusNotFound)
 }
 
 func TestStaticBadDir(t *testing.T) {
-	response := httptest.NewRecorder()
+	rec := httptest.NewRecorder()
 
 	n := Default()
-	n.Use(http.NotFoundHandler())
+	n.With(http.NotFoundHandler())
 
-	req, err := http.NewRequest("GET", "http://localhost:3001/nimble.go", nil)
+	req, err := http.NewRequest("GET", "http://localhost:3000/static_test.go", nil)
 	if err != nil {
 		t.Error(err)
 	}
 
-	n.ServeHTTP(response, req)
-	refute(t, response.Code, http.StatusOK)
+	n.ServeHTTP(rec, req)
+	refute(t, rec.Code, http.StatusOK)
 }
 
 func TestStaticOptionsServeIndex(t *testing.T) {
-	response := httptest.NewRecorder()
+	rec := httptest.NewRecorder()
 
-	n := New()
+	n := nimble.New()
 	s := NewStatic(http.Dir("."))
 	s.indexFile = "nimble.go"
-	n.UseHandler(s)
+	n.WithHandler(s)
 
-	req, err := http.NewRequest("GET", "http://localhost:3001/", nil)
+	req, err := http.NewRequest("GET", "http://localhost:3000/", nil)
 	if err != nil {
 		t.Error(err)
 	}
 
-	n.ServeHTTP(response, req)
-	expect(t, response.Code, http.StatusOK)
+	n.ServeHTTP(rec, req)
+	expect(t, rec.Code, http.StatusOK)
 }
 
 func TestStaticOptionsPrefix(t *testing.T) {
-	response := httptest.NewRecorder()
+	rec := httptest.NewRecorder()
 
-	n := New()
+	n := nimble.New()
 	s := NewStatic(http.Dir("."))
 	s.prefix = "/public"
-	n.UseHandler(s)
+	n.WithHandler(s)
 
 	// Check file content behaviour
-	req, err := http.NewRequest("GET", "http://localhost:3001/public/nimble.go", nil)
+	req, err := http.NewRequest("GET", "http://localhost:3000/public/static_test.go", nil)
 	if err != nil {
 		t.Error(err)
 	}
 
-	n.ServeHTTP(response, req)
-	expect(t, response.Code, http.StatusOK)
+	n.ServeHTTP(rec, req)
+	expect(t, rec.Code, http.StatusOK)
 }

@@ -106,6 +106,44 @@ func TestResponseWriterBefore(t *testing.T) {
 	expect(t, result, "barfoo")
 }
 
+func TestResponseWriterCloseNotify(t *testing.T) {
+	rec := newCloseNotifyingRecorder()
+	w := newWriter(rec)
+	closed := false
+	notifier := w.(http.CloseNotifier).CloseNotify()
+	rec.close()
+	select {
+	case <-notifier:
+		closed = true
+	case <-time.After(time.Second):
+	}
+	expect(t, closed, true)
+}
+
+func TestResponseWriterNonCloseNotify(t *testing.T) {
+	rec := httptest.NewRecorder()
+	w := newWriter(rec)
+	_, ok := w.(http.CloseNotifier)
+	expect(t, ok, false)
+}
+
+func TestResponseWriterFlusher(t *testing.T) {
+	rec := httptest.NewRecorder()
+	w := newWriter(rec)
+
+	_, ok := w.(http.Flusher)
+	expect(t, ok, true)
+}
+
+func TestResponseWriter_Flush_marksWritten(t *testing.T) {
+	rec := httptest.NewRecorder()
+	w := newWriter(rec)
+
+	w.Flush()
+	expect(t, w.Status(), http.StatusOK)
+	expect(t, w.Written(), true)
+}
+
 func TestResponseWriterHijack(t *testing.T) {
 	hijackable := newHijackableResponse()
 	w := newWriter(hijackable)
@@ -126,26 +164,4 @@ func TestResponseWriteHijackNotOK(t *testing.T) {
 	_, _, err := hijacker.Hijack()
 
 	refute(t, err, nil)
-}
-
-func TestResponseWriterCloseNotify(t *testing.T) {
-	rec := newCloseNotifyingRecorder()
-	w := newWriter(rec)
-	closed := false
-	notifier := w.(http.CloseNotifier).CloseNotify()
-	rec.close()
-	select {
-	case <-notifier:
-		closed = true
-	case <-time.After(time.Second):
-	}
-	expect(t, closed, true)
-}
-
-func TestResponseWriterFlusher(t *testing.T) {
-	rec := httptest.NewRecorder()
-	w := newWriter(rec)
-
-	_, ok := w.(http.Flusher)
-	expect(t, ok, true)
 }

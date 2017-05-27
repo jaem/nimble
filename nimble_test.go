@@ -3,6 +3,7 @@ package nimble
 import (
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"reflect"
 	"testing"
 )
@@ -22,44 +23,45 @@ func refute(t *testing.T, a interface{}, b interface{}) {
 
 func TestNimbleRun(t *testing.T) {
 	// just test that Run doesn't bomb
-	go New().Run(":3001")
+	go New().Run(":3000")
 }
 
 func TestNimbleServeHTTP(t *testing.T) {
+	rec := httptest.NewRecorder()
+
 	result := ""
-	response := httptest.NewRecorder()
 
 	n := New()
-	n.UseHandlerFunc(func(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
-		result += "foo"
+	n.WithHandlerFunc(func(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+		result += "_1bef"
 		next(w, r)
-		result += "ban"
+		result += "_1aft"
 	})
-	n.UseHandlerFunc(func(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
-		result += "bar"
+	n.WithHandlerFunc(func(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+		result += "_2bef"
 		next(w, r)
-		result += "baz"
+		result += "_2aft"
 	})
-	n.UseHandlerFunc(func(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
-		result += "bat"
+	n.WithHandlerFunc(func(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+		result += "_3here"
 		w.WriteHeader(http.StatusBadRequest)
 	})
 
-	n.ServeHTTP(response, (*http.Request)(nil))
+	n.ServeHTTP(rec, (*http.Request)(nil))
 
-	expect(t, result, "foobarbatbazban")
-	expect(t, response.Code, http.StatusBadRequest)
+	expect(t, result, "_1bef_2bef_3here_2aft_1aft")
+	expect(t, rec.Code, http.StatusBadRequest)
 }
 
 // Ensures that the middleware chain
 // can correctly return all of its handlers.
-func TestHandlers(t *testing.T) {
-	response := httptest.NewRecorder()
+func TestUseHandlerFunc(t *testing.T) {
+	rec := httptest.NewRecorder()
 	n := New()
 	handles := n.handlers
 	expect(t, 0, len(handles))
 
-	n.UseHandlerFunc(func(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+	n.WithHandlerFunc(func(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 		w.WriteHeader(http.StatusOK)
 	})
 
@@ -70,6 +72,33 @@ func TestHandlers(t *testing.T) {
 
 	// Ensures that the first handler that is in sequence behaves
 	// exactly the same as the one that was registered earlier
-	handles[0](response, (*http.Request)(nil), nil)
-	expect(t, response.Code, http.StatusOK)
+	handles[0](rec, (*http.Request)(nil), nil)
+	expect(t, rec.Code, http.StatusOK)
+}
+
+func TestNimbleUseNil(t *testing.T) {
+	defer func() {
+		err := recover()
+		if err == nil {
+			t.Errorf("Expected nimble.Use(nil) to panic, but it did not")
+		}
+	}()
+
+	n := New()
+	n.With(nil)
+}
+
+func TestDetectAddress(t *testing.T) {
+	if detectAddress() != defaultServerAddress {
+		t.Error("Expected the defaultServerAddress")
+	}
+
+	if detectAddress(":6060") != ":6060" {
+		t.Error("Expected the provided address")
+	}
+
+	os.Setenv("PORT", "8080")
+	if detectAddress() != ":8080" {
+		t.Error("Expected the PORT env var with a prefixed colon")
+	}
 }

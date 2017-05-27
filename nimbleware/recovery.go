@@ -3,15 +3,15 @@ package nimbleware
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"runtime"
-	"net/http"
 )
 
 // NewRecovery returns a new instance of Recovery
-func NewRecovery() *recovery {
-	return &recovery{
-		logger:     log.New(os.Stdout, "[nim.] ", 0),
+func NewRecovery() *Recovery {
+	return &Recovery{
+		logger:     log.New(os.Stdout, "[nr.] ", 0),
 		printStack: true,
 		stackAll:   false,
 		stackSize:  1024 * 8,
@@ -19,21 +19,28 @@ func NewRecovery() *recovery {
 }
 
 // Recovery is a middleware that attempts to recover from panics and writes a 500 if there was one.
-type recovery struct {
-	logger     *log.Logger
+type Recovery struct {
+	logger     ALogger
 	printStack bool
 	stackAll   bool
 	stackSize  int
 }
 
-func (rec *recovery) ServeHTTP(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+func (rec *Recovery) ServeHTTP(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 	defer func() {
 		if err := recover(); err != nil {
+
+			if w.Header().Get("Content-Type") == "" {
+				w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+			}
 			w.WriteHeader(http.StatusInternalServerError)
+
 			stack := make([]byte, rec.stackSize)
 			stack = stack[:runtime.Stack(stack, rec.stackAll)]
+
 			f := "RECOVER: %s\n%s"
 			rec.logger.Printf(f, err, stack)
+
 			if rec.printStack {
 				fmt.Fprintf(w, f, err, stack)
 			}

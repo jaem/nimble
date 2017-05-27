@@ -19,8 +19,8 @@ func TestLogger(t *testing.T) {
 
 	n := nimble.New()
 	// replace log for testing
-	n.UseHandler(l)
-	n.UseFunc(func(w http.ResponseWriter, r *http.Request) {
+	n.WithHandler(l)
+	n.WithFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 	})
 

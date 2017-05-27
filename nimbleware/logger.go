@@ -6,31 +6,37 @@ import (
 	"os"
 	"time"
 
-	"github.com/nimgo/nimble/interfaces"
+	"github.com/nimgo/nimble"
 )
 
+// ALogger interface
+type ALogger interface {
+	Println(v ...interface{})
+	Printf(format string, v ...interface{})
+}
+
 // Logger is a middleware that logs per request.
-type logger struct {
+type Logger struct {
 	*log.Logger
 	color bool
 }
 
 // NewLogger returns a new Logger instance
-func NewLogger() *logger {
-	return &logger{log.New(os.Stdout, "[n.] ", 0), false}
+func NewLogger() *Logger {
+	return &Logger{log.New(os.Stdout, "[n.] ", 0), false}
 }
 
 // NewColorLogger returns a new colored Logger instance
-func NewColorLogger() *logger {
-	return &logger{log.New(os.Stdout, "[n.] ", 0), true}
+func NewColorLogger() *Logger {
+	return &Logger{log.New(os.Stdout, "[n.] ", 0), true}
 }
 
-func (l *logger) ServeHTTP(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+func (l *Logger) ServeHTTP(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 	start := time.Now()
 
 	next(w, r)
 
-	ww := w.(interfaces.Writer)
+	ww := w.(nimble.Writer)
 
 	clientIP := "0.0.0.0"
 	latency := time.Since(start)

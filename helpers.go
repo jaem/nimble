@@ -6,7 +6,7 @@ import (
 
 const (
 	// DefaultAddress is used if no other is specified.
-	defaultServerAddress = ":8080"
+	defaultServerAddress = ":3000"
 )
 
 // detectAddress

@@ -4,9 +4,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-
-	"github.com/nimgo/nimble/interfaces"
-	"github.com/nimgo/nimble/nimbleware"
 )
 
 // Nimble is a stack of Middleware Handlers that can be invoked as an http.Handler.
@@ -32,19 +29,6 @@ type middleware struct {
 	next *middleware
 }
 
-// Default returns a new Nimble instance with the default middleware already
-// in the stack.
-//
-// Recovery - Panic Recovery Middleware
-// Logger - Request/Response Logging
-// Static - Static File Serving
-func Default() *Nimble {
-	return New().
-		UseHandler(nimbleware.NewRecovery()).
-		UseHandler(nimbleware.NewLogger()).
-		UseHandler(nimbleware.NewStatic(http.Dir("static")))
-}
-
 // New returns a new Nimble instance with no middleware preconfigured.
 func New() *Nimble {
 	return &Nimble{}
@@ -61,30 +45,30 @@ func (n *Nimble) Run(addr ...string) {
 
 // Nimble itself is a http.Handler. This allows it to used as a substack manager
 func (n *Nimble) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if _, ok := w.(interfaces.Writer); ok { // handle substacks
+	if _, ok := w.(Writer); ok { // handle substacks
 		n.middleware.serve(w, r)
 	} else {
 		n.middleware.serve(newWriter(w), r)
 	}
 }
 
-// Use adds a http.Handler onto the middleware stack.
-func (n *Nimble) Use(handler http.Handler) *Nimble {
-	return n.UseHandlerFunc(wrap(handler))
+// With adds a http.Handler onto the middleware stack.
+func (n *Nimble) With(handler http.Handler) *Nimble {
+	return n.WithHandlerFunc(wrap(handler))
 }
 
-// UseFunc adds a http.HandlerFunc onto the middleware stack.
-func (n *Nimble) UseFunc(handlerFunc http.HandlerFunc) *Nimble {
-	return n.UseHandlerFunc(wrapHandlerFunc(handlerFunc))
+// WithFunc adds a http.HandlerFunc onto the middleware stack.
+func (n *Nimble) WithFunc(handlerFunc http.HandlerFunc) *Nimble {
+	return n.WithHandlerFunc(wrapHandlerFunc(handlerFunc))
 }
 
-// UseHandler adds a nimble.Handler onto the middleware stack.
-func (n *Nimble) UseHandler(handler Handler) *Nimble {
-	return n.UseHandlerFunc(handler.ServeHTTP)
+// WithHandler adds a nimble.Handler onto the middleware stack.
+func (n *Nimble) WithHandler(handler Handler) *Nimble {
+	return n.WithHandlerFunc(handler.ServeHTTP)
 }
 
-// UseHandlerFunc adds a nimble.HandlerFunc function onto the middleware stack.
-func (n *Nimble) UseHandlerFunc(handlerFunc HandlerFunc) *Nimble {
+// WithHandlerFunc adds a nimble.HandlerFunc function onto the middleware stack.
+func (n *Nimble) WithHandlerFunc(handlerFunc HandlerFunc) *Nimble {
 	if handlerFunc == nil {
 		panic("handlerFunc cannot be nil")
 	}
@@ -101,6 +85,10 @@ func (m *middleware) serve(w http.ResponseWriter, r *http.Request) {
 
 // Wrap converts a http.Handler into a nimble.HandlerFunc
 func wrap(handler http.Handler) HandlerFunc {
+	if handler == nil {
+		return nil
+	}
+
 	return func(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 		handler.ServeHTTP(w, r)
 		next(w, r)
@@ -109,6 +97,10 @@ func wrap(handler http.Handler) HandlerFunc {
 
 // wrapFunc converts a http.HandlerFunc into a nimble.HandlerFunc.
 func wrapHandlerFunc(fn http.HandlerFunc) HandlerFunc {
+	if fn == nil {
+		return nil
+	}
+
 	return func(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 		fn(w, r)
 		next(w, r)

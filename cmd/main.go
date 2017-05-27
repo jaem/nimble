@@ -2,7 +2,8 @@ package main
 
 import (
 	"net/http"
-	nim "github.com/nimgo/nimble"
+
+	nimware "github.com/nimgo/nimble/nimbleware"
 )
 
 func main() {
@@ -20,9 +21,8 @@ func main() {
 	//	Use(subrouter),
 	//)
 
-
-	n := nim.Default()
-	n.UseFunc(saysHi("alibaba"))
+	n := nimware.Default()
+	n.WithFunc(saysHi("alibaba"))
 
 	n.Run(":3000")
 
@@ -52,6 +52,7 @@ func saysHi(who string) http.HandlerFunc {
 		w.Write([]byte(who + " says, 'Hi y'all!'"))
 	}
 }
+
 //
 //func subMiddleware(w http.ResponseWriter, r *http.Request) {
 //	c := nim.GetContext(r)

@@ -7,8 +7,8 @@ import (
 )
 
 // NewStatic returns a new instance of Static
-func NewStatic(directory http.FileSystem) *static {
-	return &static{
+func NewStatic(directory http.FileSystem) *Static {
+	return &Static{
 		dir:       directory,
 		prefix:    "",
 		indexFile: "index.html",
@@ -16,21 +16,25 @@ func NewStatic(directory http.FileSystem) *static {
 }
 
 // Static is a middleware to serves static files in the given directory/filesystem.
-type static struct {
+// If the file does not exist on the filesystem, it passes along to the next middleware
+// in the chain. If you desire "fileserver" type behavior where it returns
+// a 404 for unfound files, you should consider using http.FileServer from the Go stdlib.
+type Static struct {
 	// Dir is the directory to serve static files from
-	dir       http.FileSystem
+	dir http.FileSystem
 	// Prefix is the optional prefix used to serve the static directory content
-	prefix    string
+	prefix string
 	// IndexFile defines which file to serve as index if it exists.
 	indexFile string
 }
 
-func (s *static) ServeHTTP(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+func (s *Static) ServeHTTP(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 	if r.Method != "GET" && r.Method != "HEAD" {
 		next(rw, r)
 		return
 	}
 	file := r.URL.Path
+
 	// if we have a prefix, filter requests by stripping the prefix
 	if s.prefix != "" {
 		if !strings.HasPrefix(file, s.prefix) {
@@ -43,13 +47,13 @@ func (s *static) ServeHTTP(rw http.ResponseWriter, r *http.Request, next http.Ha
 			return
 		}
 	}
+
 	f, err := s.dir.Open(file)
 	if err != nil {
 		// Handle multiple requests from modern browsers if missing the favicon.ico
 		if file != "/favicon.ico" {
 			next(rw, r)
 		}
-
 		// discard the error?
 		return
 	}
@@ -65,7 +69,7 @@ func (s *static) ServeHTTP(rw http.ResponseWriter, r *http.Request, next http.Ha
 	if fi.IsDir() {
 		// redirect if missing trailing slash
 		if !strings.HasSuffix(r.URL.Path, "/") {
-			http.Redirect(rw, r, r.URL.Path + "/", http.StatusFound)
+			http.Redirect(rw, r, r.URL.Path+"/", http.StatusFound)
 			return
 		}
 
