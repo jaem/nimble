@@ -3,7 +3,7 @@ package main
 import (
 	"net/http"
 
-	nimware "github.com/nimgo/nimble/nimbleware"
+	"github.com/nimgo/nimble"
 )
 
 func main() {
@@ -21,7 +21,7 @@ func main() {
 	//	Use(subrouter),
 	//)
 
-	n := nimware.Default()
+	n := nimble.Default()
 	n.WithFunc(saysHi("alibaba"))
 
 	n.Run(":3000")
