@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"reflect"
 
-	"github.com/nimgo/nimble/nim"
+	"github.com/nimgo/nimble/nimble"
 
 	"net/http/httptest"
 	"testing"
@@ -32,7 +32,7 @@ func TestRecovery(t *testing.T) {
 	recover := NewRecovery()
 	recover.logger = log.New(buff, "[n.] ", 0)
 
-	n := nim.New()
+	n := nimble.New()
 
 	// replace log for testing
 	n.WithHandler(recover)

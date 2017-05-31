@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/nimgo/nimble/nim"
+	"github.com/nimgo/nimble/nimble"
 )
 
 func TestLogger(t *testing.T) {
@@ -17,7 +17,7 @@ func TestLogger(t *testing.T) {
 	l := NewLogger()
 	l.Logger = log.New(buff, "[n.] ", 0)
 
-	n := nim.New()
+	n := nimble.New()
 	// replace log for testing
 	n.WithHandler(l)
 	n.WithFunc(func(w http.ResponseWriter, r *http.Request) {

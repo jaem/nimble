@@ -21,7 +21,7 @@ func main() {
 	//	Use(subrouter),
 	//)
 
-	n := nimble.Default()
+	n := nim.Default()
 	n.WithFunc(saysHi("alibaba"))
 
 	n.Run(":3000")
