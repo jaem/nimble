@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"reflect"
 
-	"github.com/nimgo/nimble/nimble"
+	"github.com/nimgo/nim/nimble"
 
 	"net/http/httptest"
 	"testing"

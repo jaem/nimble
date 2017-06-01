@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/nimgo/nimble/nimble"
+	"github.com/nimgo/nim/nimble"
 )
 
 // ALogger interface

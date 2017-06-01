@@ -6,6 +6,14 @@ import (
 	"os"
 )
 
+// Nimbler is an interface
+type Nimbler interface {
+	With(handler http.Handler) Nimbler
+	WithFunc(handlerFunc http.HandlerFunc) Nimbler
+	WithHandler(handler Handler) Nimbler
+	WithHandlerFunc(handlerFunc HandlerFunc) Nimbler
+}
+
 // Nimble is a stack of Middleware Handlers that can be invoked as an http.Handler.
 // The middleware stack is run in the sequence that they are added to the stack.
 type Nimble struct {
@@ -53,22 +61,22 @@ func (n *Nimble) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // With adds a http.Handler onto the middleware stack.
-func (n *Nimble) With(handler http.Handler) *Nimble {
+func (n *Nimble) With(handler http.Handler) Nimbler {
 	return n.WithHandlerFunc(wrap(handler))
 }
 
 // WithFunc adds a http.HandlerFunc onto the middleware stack.
-func (n *Nimble) WithFunc(handlerFunc http.HandlerFunc) *Nimble {
+func (n *Nimble) WithFunc(handlerFunc http.HandlerFunc) Nimbler {
 	return n.WithHandlerFunc(wrapHandlerFunc(handlerFunc))
 }
 
 // WithHandler adds a nimble.Handler onto the middleware stack.
-func (n *Nimble) WithHandler(handler Handler) *Nimble {
+func (n *Nimble) WithHandler(handler Handler) Nimbler {
 	return n.WithHandlerFunc(handler.ServeHTTP)
 }
 
 // WithHandlerFunc adds a nimble.HandlerFunc function onto the middleware stack.
-func (n *Nimble) WithHandlerFunc(handlerFunc HandlerFunc) *Nimble {
+func (n *Nimble) WithHandlerFunc(handlerFunc HandlerFunc) Nimbler {
 	if handlerFunc == nil {
 		panic("handlerFunc cannot be nil")
 	}

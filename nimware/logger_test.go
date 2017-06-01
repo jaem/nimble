@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/nimgo/nimble/nimble"
+	"github.com/nimgo/nim/nimble"
 )
 
 func TestLogger(t *testing.T) {

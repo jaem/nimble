@@ -1,6 +1,6 @@
-# Nimble [![GoDoc](https://godoc.org/github.com/nimgo/nim?status.svg)](http://godoc.org/github.com/nimgo/nim) [![Build Status](https://travis-ci.org/nimgo/nim.svg?branch=master)](https://travis-ci.org/nimgo/nim)
+# Nim [![GoDoc](https://godoc.org/github.com/nimgo/nim?status.svg)](http://godoc.org/github.com/nimgo/nim) [![Build Status](https://travis-ci.org/nimgo/nim.svg?branch=master)](https://travis-ci.org/nimgo/nim)
 
-Nimble is a lightweight middleware stack engine that encourages dev authors to use `net/http` Handlers.
+Nim (aka Nimble) is a lightweight middleware stack engine that encourages dev authors to use standard `net/http` Handlers.
 
 It uses a chaining approach to web middleware in Go. It is inspired by Negroni and is similar
 to how Express (nodejs) handles its middleware.
@@ -10,10 +10,9 @@ to how Express (nodejs) handles its middleware.
 * Lightweight and non-intrusive to use as an stack engine.
 * Helps you to manage your webstack cleanly.
 * Allows you to combine the specialization of various open-source middleware packages.
-* (NOT) Nimble is not a web framework. It allows you to build your custom framework with
-  your selected middleware. It is a no-frills engine to manage the middleware stack.
+* (NOT) Nimble is not a web framework. Nim is unopinionated and allows you to build your custom framework with your selected middleware. It is a no-frills engine to manage the middleware stack.
 
-  An analogy would be that a web framework is a fixed 10-course dinner set; Nimble lets you have
+  Nim by itself is not a fixed 10-course dinner set; Nim lets you have
   a 10-course dinner set, but you can custom choose your dishes. So it depends on what you need.
 
 ##### What is middleware?

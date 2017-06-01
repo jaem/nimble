@@ -3,8 +3,8 @@ package nim
 import (
 	"net/http"
 
-	"github.com/nimgo/nimble/nimble"
-	"github.com/nimgo/nimble/nimware"
+	"github.com/nimgo/nim/nimble"
+	"github.com/nimgo/nim/nimware"
 )
 
 // Default returns a new Nimble instance with the default middleware already

@@ -3,7 +3,7 @@ package main
 import (
 	"net/http"
 
-	"github.com/nimgo/nimble"
+	"github.com/nimgo/nim"
 )
 
 func main() {
