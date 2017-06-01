@@ -6,19 +6,12 @@ import (
 	"os"
 )
 
-// Nimbler is an interface
-type Nimbler interface {
-	With(handler http.Handler) Nimbler
-	WithFunc(handlerFunc http.HandlerFunc) Nimbler
-	WithHandler(handler Handler) Nimbler
-	WithHandlerFunc(handlerFunc HandlerFunc) Nimbler
-}
-
 // Nimble is a stack of Middleware Handlers that can be invoked as an http.Handler.
 // The middleware stack is run in the sequence that they are added to the stack.
 type Nimble struct {
 	handlers   []HandlerFunc
 	middleware middleware
+	locked     bool
 }
 
 // HandlerFunc is a linked-list handler interface that provides
@@ -61,25 +54,30 @@ func (n *Nimble) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // With adds a http.Handler onto the middleware stack.
-func (n *Nimble) With(handler http.Handler) Nimbler {
+func (n *Nimble) With(handler http.Handler) *Nimble {
 	return n.WithHandlerFunc(wrap(handler))
 }
 
 // WithFunc adds a http.HandlerFunc onto the middleware stack.
-func (n *Nimble) WithFunc(handlerFunc http.HandlerFunc) Nimbler {
+func (n *Nimble) WithFunc(handlerFunc http.HandlerFunc) *Nimble {
 	return n.WithHandlerFunc(wrapHandlerFunc(handlerFunc))
 }
 
 // WithHandler adds a nimble.Handler onto the middleware stack.
-func (n *Nimble) WithHandler(handler Handler) Nimbler {
+func (n *Nimble) WithHandler(handler Handler) *Nimble {
 	return n.WithHandlerFunc(handler.ServeHTTP)
 }
 
 // WithHandlerFunc adds a nimble.HandlerFunc function onto the middleware stack.
-func (n *Nimble) WithHandlerFunc(handlerFunc HandlerFunc) Nimbler {
+func (n *Nimble) WithHandlerFunc(handlerFunc HandlerFunc) *Nimble {
 	if handlerFunc == nil {
 		panic("handlerFunc cannot be nil")
 	}
+
+	if n.locked {
+		panic("Nimble has already been locked.")
+	}
+
 	n.handlers = append(n.handlers, handlerFunc)
 	n.middleware = build(n.handlers)
 	return n
@@ -119,17 +117,17 @@ func build(handles []HandlerFunc) middleware {
 	var next middleware
 
 	if len(handles) == 0 {
-		return emptyMiddleware()
+		return empty()
 	} else if len(handles) > 1 {
 		next = build(handles[1:])
 	} else {
-		next = emptyMiddleware()
+		next = empty()
 	}
 
 	return middleware{handles[0], &next}
 }
 
-func emptyMiddleware() middleware {
+func empty() middleware {
 	return middleware{
 		func(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) { /* do nothing */ },
 		&middleware{},
