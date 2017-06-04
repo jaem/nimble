@@ -1,7 +1,9 @@
 package nim
 
 import (
+	"log"
 	"net/http"
+	"os"
 
 	"github.com/nimgo/nim/nimble"
 	"github.com/nimgo/nim/nimware"
@@ -23,4 +25,13 @@ func Default() *nimble.Nimble {
 // New returns a new Nimble instance with no middleware preconfigured.
 func New() *nimble.Nimble {
 	return nimble.New()
+}
+
+// Run is a convenience function that runs the nimble stack as an HTTP
+// server. The addr string takes the same format as http.ListenAndServe.
+func Run(n *nimble.Nimble, addr ...string) {
+	l := log.New(os.Stdout, "[n.] ", 0)
+	address := detectAddress(addr...)
+	l.Printf("Server is listening on %s", address)
+	l.Fatal(http.ListenAndServe(address, n))
 }

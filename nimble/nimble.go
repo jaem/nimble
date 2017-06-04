@@ -1,9 +1,7 @@
 package nimble
 
 import (
-	"log"
 	"net/http"
-	"os"
 )
 
 // Nimble is a stack of Middleware Handlers that can be invoked as an http.Handler.
@@ -33,15 +31,6 @@ type middleware struct {
 // New returns a new Nimble instance with no middleware preconfigured.
 func New() *Nimble {
 	return &Nimble{}
-}
-
-// Run is a convenience function that runs the nimble stack as an HTTP
-// server. The addr string takes the same format as http.ListenAndServe.
-func (n *Nimble) Run(addr ...string) {
-	l := log.New(os.Stdout, "[n.] ", 0)
-	address := detectAddress(addr...)
-	l.Printf("Server is listening on %s", address)
-	l.Fatal(http.ListenAndServe(address, n))
 }
 
 // Nimble itself is a http.Handler. This allows it to used as a substack manager

@@ -3,7 +3,6 @@ package nimble
 import (
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"reflect"
 	"testing"
 )
@@ -19,11 +18,6 @@ func refute(t *testing.T, a interface{}, b interface{}) {
 	if a == b {
 		t.Errorf("Did not expect %v (type %v) - Got %v (type %v)", b, reflect.TypeOf(b), a, reflect.TypeOf(a))
 	}
-}
-
-func TestNimbleRun(t *testing.T) {
-	// just test that Run doesn't bomb
-	go New().Run(":3000")
 }
 
 func TestNimbleServeHTTP(t *testing.T) {
@@ -86,19 +80,4 @@ func TestNimbleUseNil(t *testing.T) {
 
 	n := New()
 	n.With(nil)
-}
-
-func TestDetectAddress(t *testing.T) {
-	if detectAddress() != defaultServerAddress {
-		t.Error("Expected the defaultServerAddress")
-	}
-
-	if detectAddress(":6060") != ":6060" {
-		t.Error("Expected the provided address")
-	}
-
-	os.Setenv("PORT", "8080")
-	if detectAddress() != ":8080" {
-		t.Error("Expected the PORT env var with a prefixed colon")
-	}
 }

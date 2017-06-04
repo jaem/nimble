@@ -24,7 +24,7 @@ func main() {
 	n := nim.Default()
 	n.WithFunc(saysHi("alibaba"))
 
-	n.Run(":3000")
+	nim.Run(n, ":3000")
 
 	//n := nim.DefaultWithContext(context.TODO())
 	//n.UseFunc(myMiddleware)
