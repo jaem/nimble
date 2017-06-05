@@ -9,7 +9,6 @@ import (
 type Nimble struct {
 	handlers   []HandlerFunc
 	middleware middleware
-	locked     bool
 }
 
 // HandlerFunc is a linked-list handler interface that provides
@@ -27,6 +26,9 @@ type middleware struct {
 	fn   HandlerFunc
 	next *middleware
 }
+
+// Make sure Nimble conforms with the http.Handler interface
+var _ http.Handler = New()
 
 // New returns a new Nimble instance with no middleware preconfigured.
 func New() *Nimble {
@@ -61,10 +63,6 @@ func (n *Nimble) WithHandler(handler Handler) *Nimble {
 func (n *Nimble) WithHandlerFunc(handlerFunc HandlerFunc) *Nimble {
 	if handlerFunc == nil {
 		panic("handlerFunc cannot be nil")
-	}
-
-	if n.locked {
-		panic("Nimble has already been locked.")
 	}
 
 	n.handlers = append(n.handlers, handlerFunc)
